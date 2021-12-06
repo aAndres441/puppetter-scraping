@@ -1,0 +1,24 @@
+{
+  "name": "puppetter-scraping",
+  "version": "1.0.0",
+  "description": "app para scraping con puppeteer y nodeJs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aAndres441/puppetter-scraping.git"
+  },
+  "keywords": [
+    "scraping",
+    "nodeJs",
+    "puppeteer"
+  ],
+  "author": "Andres Arias",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aAndres441/puppetter-scraping/issues"
+  },
+  "homepage": "https://github.com/aAndres441/puppetter-scraping#readme"
+}
