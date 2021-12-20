@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs/promises'); //para
 
 (async() =>{
+
     const browser = await puppeteer.launch({
         headless:false,
         slowMo:250 //tiempo de la respuesta en ms
@@ -9,19 +10,41 @@ const fs = require('fs/promises'); //para
     const miUrl ='https://www.youtube.com/'; //youtube
     const miUrl2 = 'https://www.google.com/search?q=ministerio+agricultura+y+pesca&rlz=1C1CHBD_esUY820UY820&oq=ministerio+agr&aqs=chrome.1.0i512l2j69i57j46i512j0i512l6.10108j0j4&sourceid=chrome&ie=UTF-8'; //ministerio Agricultura y pesca
 	const miUrlScreen = 'https://www.cafenix.com.uy/'; // caFenix
-    const addScrap1 = 'https://books.toscrape.com/catalogue/its-only-the-himalayas_981/index.html'; //pag para escrapear
-    const addScrap2 = 'https://www.instagram.com/elceibo_vivero/?hl=es'; //pag para escrapear
-    const addScrap3 = 'https://books.toscrape.com/catalogue/category/books/food-and-drink_33/index.html'; //pag para escrapear
+    const urlScrap1 = 'https://books.toscrape.com'; //pag para escrapear
+    const urlScrap2 = 'https://www.instagram.com/elceibo_vivero/?hl=es'; //pag para escrapear
+    const urlScrap3 = 'https://books.toscrape.com/catalogue/category/books/food-and-drink_33/index.html'; //pag para escrapear
+    const urlScrap4 = 'https://quotes.toscrape.com/search.aspx'; //para form login
     
-    const page = await browser.newPage();
+    //const page = await browser.newPage();
     
    //await rascar(miUrl2, page, browser);  //llamada1
    //await screenShoot(miUrlScreen, page, browser); //llamada2
-   //await addDatos(addScrap1, page, browser); //llamada3
-   //await getImages(addScrap3, page, browser); //llamada3
-   await click(addScrap3, page, browser); //llamada3
+   //await addDatos(urlScrap1, page, browser); //llamada3
+   //await getImages(urlScrap3, page, browser); //llamada guarda imagen
+   //await click(urlScrap3, page, browser); //llamada3
+   await formu(urlScrap4, page, browser); //llamada3
+})(); //asi se ejecuta automaticamente al abrir y llama a funcion q preciso sino lo hago desde afuera
 
-})(); //asi se ejecuta automaticamente al abrir
+//abrir(); llamo a una function
+async function abrir() {
+    const url = 'https://quotes.toscrape.com/search.aspx';
+    
+        try {
+            const browser = await puppeteer.launch({
+                headless: false,
+                slowMo: 250 //tiempo de la respuesta en ms
+            });
+            const page = await browser.newPage();
+            await page.goto(url);
+            await page.screenshot({ path: 'quelopario.png', fullPage: true });
+            await browser.close(); //cierra navegador
+            /* o puedo hacer una llamada a la de abajo
+            formu(url,page,browser);*/
+
+        } catch (error) {
+            log.error(error);
+        }
+}
 
 /* ***  Cargar pagina web  *** */
  async function  rascar (url, page, browser) {
@@ -52,7 +75,8 @@ async function screenShoot(url, page, browser)  {
 }
 
 /* --  guardar datos de alguna pagina   */
-async function addDatos(url, page, browser) {
+async function addDatos
+(url, page, browser) {
     await page.goto(url);
 
     const listDtosDOM = await page.evaluate(() => {
@@ -94,12 +118,65 @@ async function getImages(url, page, browser) {
     await browser.close(); //cierra navegador
 }
 
+
+/*  ** formulario *** */
+async function formu(url,page,browser){
+
+    await page.goto(url); 
+
+    //await page.type('#author','Albert Einstein');    
+    //await page.type('#tag','miracles');
+    await page.type('#author','Bob Marley');
+    await page.type('#tag','love');
+
+    //await page.click('body > div > form > input.btn.btn-default')
+
+    /* await Promise.all([await page.click('body > div > form > input.btn.btn-default')
+                            ,page.waitForNavigation()]) */   
+                            
+     //arriba pongo los 2 await en un array de promesa de abago
+     //en este caso como no navegare splo  muestro info de la misma pag
+     await page.click('body > div > form > input.btn.btn-default');
+
+    /*await page.click('body > div > form > input.btn.btn-default');
+    await page.waitForNavigation(); */
+
+    /* const datoBoton1 = await page.$eval('body > div > form > input.btn.btn-default',el=>el.textContent)
+    const datoBoton2 = await page.$eval('#author',el=>el.textContent)
+ */
+    //aca muestra la info de la pag a la que se navegaria
+    const infoUnLink = await page.$eval('body > footer > div > p.text-muted > a',el=>el.innerHTML);
+   // const info = await page.$eval('body > div > div.results > div > span.content', x=x.textContent)
+    try {
+        console.log(`info: ${infoUnLink}`);
+       //console.log(`Lainfo: ${info}`);
+    } catch (error) {
+        console.log('error');
+    }
+
+    await browser.close(); //cierra navegador
+}
+
 /* click boton */
 async function click(url, page, browser){
     await page.goto(url);
     await page.click('#default > div > div > div > div > section > div > ol > li > article > div.product_price > form > button');
-    const datoBoton = await page.$eval('#default > div > div > div > div > section > div > ol > li > article > div.product_price > p.instock.availability',el=>el.textContent)
-    console.log(datoBoton);
+    const datoBoton1 = await page.$eval('#default > div > div > div > div > section > div > ol > li > article > div.product_price > p.instock.availability',el=>el.textContent)
+    const datoBoton2 = await page.$eval('#default > div > div > div > div > section > div > ol > li> article > div.product_price > form > button',el=>el.textContent)
+    const datoBoton3 = await page.$eval('#default > div > div > div > div > section > div > ol > li > article > div.product_price > p.price_color',el=>el.textContent)
+    //const datoBoton4 = await page.$eval('#default > div > div > div > div > section > div > ol > li: > article > h3',el=>el.textContent)
+    
+    const list= await page.evaluate(() => {
+        const lista = Array.from(document.querySelectorAll('#default > div > div > div > div > section > div:nth-child(2) > ol > li:nth-child(16) > article > h3 > a'))
+        .map(x => x.textContent);
+      });
+    
+    const datoBoton4 = await page.$eval('#default > div > div > div > div > section > div > ol > li > article > h3 > a',el=>el.textContent)
+    console.log(datoBoton1);
+    console.log(datoBoton2);
+    console.log(datoBoton3);
+    //console.log(datoBoton4);
+    console.log(list);
     await browser.close(); //cierra navegador
 }
 
